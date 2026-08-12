@@ -102,7 +102,7 @@ export default function MainPage() {
                 alt=""
               />
             </span>{" "}
-            Dev Toolkit
+            DevAidKit
           </h2>
           <p className="max-w-xl text-sm leading-relaxed text-white/65 sm:text-[15px]">
             A local-first collection of everyday developer tools. Nothing leaves

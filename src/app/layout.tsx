@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Dev Toolkit",
+  title: "DevAidKit",
   description: "A local-first collection of everyday developer tools.",
 };
 

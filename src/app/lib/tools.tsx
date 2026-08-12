@@ -7,7 +7,7 @@ import {
   FileJson2,
   KeyRound,
   Lock,
-  FileText,
+  FileUp,
   Clock,
   Fingerprint,
   Palette,
@@ -74,7 +74,7 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/js_minifier.png",
   },
   {
-    slug: "url-encoder",
+    slug: "url-decode-encoder",
     name: "URL Encoder/Decoder",
     category: "Conversion Tools",
     description:
@@ -90,6 +90,14 @@ export const TOOLS: Tool[] = [
       "Decodes sensitive payload data or encodes binary files into text.",
     icon: Binary,
     image: "/toolkit_image/base64.png",
+  },
+  {
+    slug: "image-to-base64",
+    name: "Image to Base64 Converter",
+    category: "Conversion Tools",
+    description: "Convert images to Base64 strings for web use",
+    icon: FileUp,
+    image: "/toolkit_image/image_to_base64.png",
   },
   {
     slug: "json-to-yaml",
