@@ -92,7 +92,7 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/base64.png",
   },
   {
-    slug: "image-to-base64",
+    slug: "base64-img",
     name: "Image to Base64 Converter",
     category: "Conversion Tools",
     description: "Convert images to Base64 strings for web use",
