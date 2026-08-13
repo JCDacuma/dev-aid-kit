@@ -46,7 +46,7 @@ const cardVariants: Variants = {
     transition: {
       duration: 0.5,
       ease: EASE,
-      delay: Math.min(index % 3, 2) * 0.08, // sequence by column position, capped
+      delay: Math.min(index % 3, 2) * 0.08,
     },
   }),
   exit: {
@@ -94,7 +94,7 @@ export default function MainPage() {
           variants={headerVariants}
           className="flex flex-col gap-4"
         >
-          <h2 className="font-mono text-2xl flex items-center flex gap-2 font-semibold tracking-tight text-white sm:text-3xl">
+          <h2 className="font-mono text-2xl flex items-center  gap-2 font-semibold tracking-tight text-white sm:text-3xl">
             <span className="text-emerald-400">
               <img
                 src="/logo/codepentry_logo.svg"
@@ -176,6 +176,7 @@ export default function MainPage() {
                               amount: 0.2,
                               margin: "0px 0px -60px 0px",
                             }}
+                            className="h-full"
                           >
                             <ToolCard tool={tool} />
                           </motion.div>

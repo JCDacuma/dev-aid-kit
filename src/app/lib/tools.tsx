@@ -73,26 +73,27 @@ export const TOOLS: Tool[] = [
     icon: FileCode2,
     image: "/toolkit_image/js_minifier.png",
   },
+
   {
-    slug: "url-decode-encoder",
+    slug: "url-encode-decode",
     name: "URL Encoder/Decoder",
     category: "Conversion Tools",
     description:
       "Debugs and fixes improperly formatted URLs in API calls or browser links.",
     icon: Link2,
-    image: "/toolkit_image/url_encode_decoder.png",
+    image: "/toolkit_image/url_encode_decode.png",
   },
   {
-    slug: "base64",
+    slug: "base64-encode-decode",
     name: "Base64 Encoder/Decoder",
     category: "Conversion Tools",
     description:
       "Decodes sensitive payload data or encodes binary files into text.",
     icon: Binary,
-    image: "/toolkit_image/base64.png",
+    image: "/toolkit_image/base64_encode_decode.png",
   },
   {
-    slug: "base64-img",
+    slug: "base64-img-converter",
     name: "Image to Base64 Converter",
     category: "Conversion Tools",
     description: "Convert images to Base64 strings for web use",
@@ -100,7 +101,7 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/image_to_base64.png",
   },
   {
-    slug: "json-to-yaml",
+    slug: "yaml-json-converter",
     name: "JSON to YAML Converter",
     category: "Conversion Tools",
     description:
@@ -109,7 +110,7 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/json_to_yml.png",
   },
   {
-    slug: "jwt-decoder",
+    slug: "jwt-decoder-debugger",
     name: "JWT Debugger/Decoder",
     category: "Security & Identity",
     description:

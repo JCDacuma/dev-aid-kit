@@ -4,7 +4,6 @@ import { useCallback, useMemo, useRef, useState, memo } from "react";
 import { useDropzone, type FileRejection } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import Pica from "pica";
-import heic2any from "heic2any";
 import {
   Binary,
   UploadCloud,
@@ -226,6 +225,8 @@ async function processImageFile(
   let sourceName = file.name;
 
   if (isHeicFile(file)) {
+    const heic2any = (await import("heic2any")).default;
+
     const converted = await (
       heic2any as unknown as (opts: {
         blob: Blob;
@@ -237,6 +238,7 @@ async function processImageFile(
       toType: "image/png",
       quality: 0.92,
     });
+
     workingBlob = Array.isArray(converted) ? converted[0] : converted;
     sourceName = sourceName.replace(/\.(heic|heif)$/i, ".png");
   }
@@ -365,7 +367,7 @@ const ToolbarButton = memo(function ToolbarButton({
           ? "cursor-not-allowed border-white/10 text-white/30"
           : primary
             ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-400 hover:border-emerald-400/50 hover:bg-emerald-400/15"
-            : "border-white/10 text-white/80 hover:border-white/20 hover:bg-white/[0.04] hover:text-white"
+            : "border-white/10 text-white/80 hover:border-white/20 hover:bg-white/4 hover:text-white"
       }`}
     >
       {icon}
@@ -499,7 +501,7 @@ const OptionsPanel = memo(function OptionsPanel({
   onFormatChange: (value: OutputFormat) => void;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-white/10 bg-white/[0.02] p-4">
+    <div className="flex flex-col gap-4 rounded-lg border border-white/10 bg-white/2 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <input
           type="number"
@@ -596,7 +598,7 @@ const StatsPanel = memo(function StatsPanel({
   }, [images]);
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-4">
+    <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/2 p-4">
       <span className="font-mono text-xs uppercase tracking-wider text-white/45">
         Session Stats
       </span>
@@ -673,7 +675,7 @@ const ResultCard = memo(function ResultCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.2, ease: EASE }}
-      className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]"
+      className="overflow-hidden rounded-lg border border-white/10 bg-white/2"
     >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
         <div className="flex items-center gap-3">
@@ -724,7 +726,7 @@ const ResultCard = memo(function ResultCard({
             className={`rounded px-2.5 py-1 font-mono text-[11px] transition-colors duration-150 ${
               image.activeTab === tab.value
                 ? "bg-emerald-400/15 text-emerald-400"
-                : "text-white/50 hover:bg-white/[0.04] hover:text-white"
+                : "text-white/50 hover:bg-white/4 hover:text-white"
             }`}
           >
             {tab.label}
@@ -790,7 +792,7 @@ function DropzoneArea({
       className={`relative flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed px-6 py-10 text-center transition-colors duration-150 ${
         isDragActive
           ? "border-emerald-400/60 bg-emerald-400/5"
-          : "border-white/15 bg-white/[0.02]"
+          : "border-white/15 bg-white/2"
       }`}
     >
       <input {...getInputProps()} />
@@ -955,7 +957,7 @@ function EncodePanel() {
         onFormatChange={setFormat}
       />
 
-      <div className="flex min-h-[20px] items-center gap-2">
+      <div className="flex min-h-5 items-center gap-2">
         {isProcessing && (
           <div className="flex items-center gap-1.5 font-mono text-xs text-white/60">
             <Loader2 size={13} strokeWidth={2} className="animate-spin" />
@@ -1134,7 +1136,7 @@ function DecodePanel() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-white/2 p-3">
         <label className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-white/55">
           Assume MIME
           <select
@@ -1186,7 +1188,7 @@ function DecodePanel() {
         className="hidden"
       />
 
-      <div className="flex min-h-[20px] items-center gap-2">
+      <div className="flex min-h-5 items-center gap-2">
         <AnimatePresence mode="wait">
           {decodeError && (
             <motion.div
@@ -1218,7 +1220,7 @@ function DecodePanel() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+        <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
             <span className="font-mono text-xs uppercase tracking-wider text-white/45">
               Base64 / Data URI
@@ -1232,11 +1234,11 @@ function DecodePanel() {
             onChange={handleInputChange}
             placeholder="Paste a data: URI or raw Base64 string here..."
             spellCheck={false}
-            className="h-[360px] w-full resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed text-white/85 outline-none placeholder:text-white/30"
+            className="h-full w-full resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed text-white/85 outline-none placeholder:text-white/30"
           />
         </div>
 
-        <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+        <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
             <span className="font-mono text-xs uppercase tracking-wider text-white/45">
               Preview
@@ -1248,7 +1250,7 @@ function DecodePanel() {
               </span>
             )}
           </div>
-          <div className="flex h-[360px] flex-col">
+          <div className="flex h-90 flex-col">
             <div className="flex flex-1 items-center justify-center p-4">
               {decodeResult ? (
                 <img
