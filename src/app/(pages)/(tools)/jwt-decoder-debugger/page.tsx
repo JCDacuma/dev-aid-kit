@@ -302,7 +302,7 @@ const IconButton = memo(function IconButton({
           ? "cursor-not-allowed border-white/5 text-white/20"
           : active
             ? "border-violet-400/40 bg-violet-400/10 text-violet-400"
-            : "border-white/10 text-white/50 hover:border-white/20 hover:bg-white/[0.04] hover:text-white"
+            : "border-white/10 text-white/50 hover:border-white/20 hover:bg-white/2 hover:text-white"
       }`}
     >
       {icon}
@@ -481,7 +481,7 @@ const DataPanel = memo(function DataPanel({
   onExpand: () => void;
 }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+    <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
       <span className="px-4 pb-2 pt-3 font-mono text-sm font-semibold text-white/90">
         {title}
       </span>
@@ -507,7 +507,7 @@ const DataPanel = memo(function DataPanel({
           />
         </div>
       </div>
-      <div className="max-h-[220px] overflow-auto">
+      <div className="max-h-55 overflow-auto">
         {data === null ? (
           <p className="p-4 font-mono text-xs text-white/35">
             Paste a valid token above to see this section.
@@ -609,7 +609,7 @@ const SecretField = memo(function SecretField({
   const masked = !multiline && !visible;
   const showRequiredDot = !disabled && !value.trim();
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+    <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
         <span className="flex items-center gap-2 font-mono text-xs text-white/60">
           <span className="text-violet-400">{">_"}</span> {label}
@@ -699,7 +699,7 @@ const JsonEditorPanel = memo(function JsonEditorPanel({
         ? validity.message
         : "Waiting for input";
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+    <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
         <span className="flex items-center gap-2 font-mono text-xs text-white/60">
           <span className="text-violet-400">{">_"}</span> {title}
@@ -954,7 +954,7 @@ function DecoderView({
               Enable auto-focus
             </label>
           </div>
-          <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+          <div className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
               <span className="font-mono text-xs text-white/60">
                 <span className="text-violet-400">{">_"}</span> JSON Web Token
@@ -982,7 +982,7 @@ function DecoderView({
                 />
               </div>
             </div>
-            <div className="relative h-[420px]">
+            <div className="relative h-105">
               <div
                 ref={overlayRef}
                 aria-hidden
@@ -1374,7 +1374,7 @@ function EncoderView({
               )}
             </div>
             {isUnsecured ? (
-              <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4 font-mono text-xs text-white/35">
+              <div className="rounded-lg border border-white/10 bg-white/2 p-4 font-mono text-xs text-white/35">
                 This algorithm produces an unsigned token.
               </div>
             ) : (
@@ -1398,7 +1398,7 @@ function EncoderView({
           <span className="font-mono text-sm font-semibold text-white/90">
             JWT Signature
           </span>
-          <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+          <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
               <span className="font-mono text-xs text-white/60">
                 <span className="text-violet-400">{">_"}</span> Encoded JWT
@@ -1417,7 +1417,7 @@ function EncoderView({
                 disabled={!generatedToken}
               />
             </div>
-            <div className="min-h-[360px] flex-1 overflow-auto p-4">
+            <div className="min-h-90 flex-1 overflow-auto p-4">
               {generatedToken ? (
                 <pre className="whitespace-pre-wrap break-all font-mono text-[13px] leading-relaxed">
                   <TokenHighlight token={generatedToken} />

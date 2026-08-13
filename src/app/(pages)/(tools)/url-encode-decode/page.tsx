@@ -82,7 +82,7 @@ const ToolbarButton = memo(function ToolbarButton({
           ? "cursor-not-allowed border-white/10 text-white/30"
           : primary
             ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-400 hover:border-emerald-400/50 hover:bg-emerald-400/15"
-            : "border-white/10 text-white/80 hover:border-white/20 hover:bg-white/[0.04] hover:text-white"
+            : "border-white/10 text-white/80 hover:border-white/20 hover:bg-white/2 hover:text-white"
       }`}
     >
       {icon}
@@ -152,7 +152,7 @@ const EditorPane = memo(function EditorPane({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`relative flex flex-col overflow-hidden rounded-lg border bg-white/[0.02] transition-colors duration-150 ${
+      className={`relative flex flex-col overflow-hidden rounded-lg border bg-white/2 transition-colors duration-150 ${
         isDragOver
           ? "border-emerald-400/60 bg-emerald-400/5"
           : "border-white/10"
@@ -415,7 +415,7 @@ export default function UrlDecodeEncoder() {
             anywhere.
           </p>
         </header>
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-white/2 p-3">
           <div className="flex items-center gap-2">
             <label className="font-mono text-xs uppercase tracking-wider text-white/55">
               Mode
@@ -502,7 +502,7 @@ export default function UrlDecodeEncoder() {
           onChange={handleFileInputChange}
           className="hidden"
         />
-        <div className="flex min-h-[20px] items-center gap-2">
+        <div className="flex min-h-5 items-center gap-2">
           <AnimatePresence mode="wait">
             {validation.status === "valid" && (
               <motion.div
@@ -552,7 +552,7 @@ export default function UrlDecodeEncoder() {
               onChange={handleInputChange}
               placeholder="Type, paste, or drop a text file here..."
               spellCheck={false}
-              className="h-[420px] w-full resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed text-white/85 outline-none placeholder:text-white/30"
+              className="h-105 w-full resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed text-white/85 outline-none placeholder:text-white/30"
             />
           </EditorPane>
           <EditorPane
@@ -567,7 +567,7 @@ export default function UrlDecodeEncoder() {
               readOnly
               placeholder="Result goes here..."
               spellCheck={false}
-              className="h-[420px] w-full resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed text-white/85 outline-none placeholder:text-white/30"
+              className="h-105 w-full resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed text-white/85 outline-none placeholder:text-white/30"
             />
           </EditorPane>
         </div>

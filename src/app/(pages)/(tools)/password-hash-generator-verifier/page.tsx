@@ -176,7 +176,7 @@ const AlgorithmGroup = memo(function AlgorithmGroup({
               className={`rounded-md border px-2.5 py-1.5 font-mono text-xs transition-colors duration-150 ${
                 active
                   ? "border-violet-400/50 bg-violet-400/15 text-violet-300"
-                  : "border-white/10 text-white/70 hover:border-white/20 hover:bg-white/[0.04] hover:text-white"
+                  : "border-white/10 text-white/70 hover:border-white/20 hover:bg-white/4 hover:text-white"
               }`}
             >
               {ALGORITHM_META[algorithm].label}
@@ -426,7 +426,7 @@ const DigestNote = memo(function DigestNote({
   algorithm: Algorithm;
 }) {
   return (
-    <div className="flex items-start gap-2 rounded-md border border-amber-400/20 bg-amber-400/[0.06] p-3">
+    <div className="flex items-start gap-2 rounded-md border border-amber-400/20 bg-amber-400/6 p-3">
       <ShieldAlert
         size={14}
         strokeWidth={1.75}
@@ -458,7 +458,7 @@ const HashOutputPanel = memo(function HashOutputPanel({
 }) {
   const meta = ALGORITHM_META[algorithm];
   return (
-    <section className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+    <section className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
         <span className="font-mono text-xs uppercase tracking-wider text-white/45">
           Result
@@ -765,7 +765,7 @@ export default function PasswordHashGeneratorVerifier() {
           </p>
         </header>
 
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-white/2 p-3">
           <div className="flex items-center gap-2">
             <label className="font-mono text-xs uppercase tracking-wider text-white/55">
               Mode
@@ -787,7 +787,7 @@ export default function PasswordHashGeneratorVerifier() {
               transition={{ duration: 0.18, ease: EASE }}
               className="grid grid-cols-1 gap-4 lg:grid-cols-2"
             >
-              <section className="flex flex-col gap-4 rounded-lg border border-white/10 bg-white/[0.02] p-5">
+              <section className="flex flex-col gap-4 rounded-lg border border-white/10 bg-white/2 p-5">
                 <PasswordInput
                   id="generate-password"
                   label="Password to hash"
@@ -871,7 +871,7 @@ export default function PasswordHashGeneratorVerifier() {
               transition={{ duration: 0.18, ease: EASE }}
               className="grid grid-cols-1 gap-4 lg:grid-cols-2"
             >
-              <section className="flex flex-col gap-4 rounded-lg border border-white/10 bg-white/[0.02] p-5">
+              <section className="flex flex-col gap-4 rounded-lg border border-white/10 bg-white/2 p-5">
                 <PasswordInput
                   id="verify-password"
                   label="Password to check"
@@ -892,7 +892,7 @@ export default function PasswordHashGeneratorVerifier() {
                     onChange={handleVerifyHashChange}
                     placeholder="Paste a hash — e.g. $2b$10$... or a hex digest"
                     spellCheck={false}
-                    className="min-h-[84px] w-full resize-none rounded-md border border-white/10 bg-black/40 p-3 font-mono text-[13px] text-white/85 outline-none transition-colors duration-150 placeholder:text-white/30 focus:border-violet-400/50"
+                    className="min-h-21 w-full resize-none rounded-md border border-white/10 bg-black/40 p-3 font-mono text-[13px] text-white/85 outline-none transition-colors duration-150 placeholder:text-white/30 focus:border-violet-400/50"
                   />
                 </div>
                 <div className="flex items-center gap-2">

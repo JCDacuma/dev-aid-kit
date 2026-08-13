@@ -103,7 +103,7 @@ const PresetChips = memo(function PresetChips({
           key={preset.expression}
           type="button"
           onClick={() => onSelect(preset.expression)}
-          className="rounded-md border border-white/10 px-2.5 py-1 font-mono text-[11px] text-white/60 transition-colors duration-150 hover:border-yellow-400/40 hover:bg-yellow-400/[0.08] hover:text-yellow-300"
+          className="rounded-md border border-white/10 px-2.5 py-1 font-mono text-[11px] text-white/60 transition-colors duration-150 hover:border-yellow-400/40 hover:bg-yellow-400/8 hover:text-yellow-300"
         >
           {preset.label}
         </button>
@@ -163,7 +163,7 @@ const CronInput = memo(function CronInput({
 });
 const ErrorList = memo(function ErrorList({ errors }: { errors: string[] }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-md border border-red-400/20 bg-red-400/[0.06] p-3">
+    <div className="flex flex-col gap-1.5 rounded-md border border-red-400/20 bg-red-400/6 p-3">
       {errors.map((message) => (
         <div key={message} className="flex items-start gap-2">
           <AlertCircle
@@ -189,7 +189,7 @@ const ExplanationPanel = memo(function ExplanationPanel({
   onCopy: () => void;
 }) {
   return (
-    <section className="flex flex-col gap-2.5 rounded-lg border border-yellow-400/20 bg-yellow-400/[0.05] p-5">
+    <section className="flex flex-col gap-2.5 rounded-lg border border-yellow-400/20 bg-yellow-400/5 p-5">
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs uppercase tracking-wider text-yellow-300/70">
           In plain English
@@ -224,7 +224,7 @@ const FieldCard = memo(function FieldCard({
     <div
       className={`flex flex-col gap-2.5 rounded-md border p-3 transition-colors duration-150 ${
         hasError
-          ? "border-red-400/30 bg-red-400/[0.04]"
+          ? "border-red-400/30 bg-red-400/4"
           : "border-white/10 bg-black/20"
       }`}
     >
@@ -261,7 +261,7 @@ const FieldRuler = memo(function FieldRuler({
   fieldErrors: (string | null)[] | null;
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-5">
+    <section className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/2 p-5">
       <div className="flex items-center gap-2">
         <LayoutGrid size={14} strokeWidth={1.75} className="text-white/40" />
         <span className="font-mono text-xs uppercase tracking-wider text-white/45">
@@ -311,7 +311,7 @@ const UpcomingRunsPanel = memo(function UpcomingRunsPanel({
   isValid: boolean;
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-5">
+    <section className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/2 p-5">
       <div className="flex items-center gap-2">
         <Clock size={14} strokeWidth={1.75} className="text-white/40" />
         <span className="font-mono text-xs uppercase tracking-wider text-white/45">
@@ -325,21 +325,21 @@ const UpcomingRunsPanel = memo(function UpcomingRunsPanel({
             strokeWidth={1.5}
             className="text-white/25"
           />
-          <p className="max-w-[220px] text-[12px] leading-relaxed text-white/35">
+          <p className="max-w-55 text-[12px] leading-relaxed text-white/35">
             Enter a cron expression above to see when it will next run
           </p>
         </div>
       ) : !isValid ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
           <AlertCircle size={26} strokeWidth={1.5} className="text-white/25" />
-          <p className="max-w-[220px] text-[12px] leading-relaxed text-white/35">
+          <p className="max-w-55 text-[12px] leading-relaxed text-white/35">
             Fix the errors above to see upcoming run times
           </p>
         </div>
       ) : runs.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
           <Info size={26} strokeWidth={1.5} className="text-white/25" />
-          <p className="max-w-[240px] text-[12px] leading-relaxed text-white/35">
+          <p className="max-w-60 text-[12px] leading-relaxed text-white/35">
             This schedule doesn&apos;t land on a real date any time soon —
             double check the day and month combination
           </p>
@@ -400,7 +400,7 @@ export default function CronExplainerPage() {
             instantly in your browser.
           </p>
         </header>
-        <section className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-5">
+        <section className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/2 p-5">
           <div className="flex items-center justify-between gap-3">
             <label
               htmlFor="cron-expression"
