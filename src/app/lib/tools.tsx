@@ -137,7 +137,7 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/cron_explainer.png",
   },
   {
-    slug: "uuid-generator",
+    slug: "uuid-cuid-generator",
     name: "UUID/CUID Generator",
     category: "Text & Utilities",
     description:
