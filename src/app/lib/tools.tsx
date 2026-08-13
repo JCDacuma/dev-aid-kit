@@ -119,8 +119,8 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/jwt_debugger.png",
   },
   {
-    slug: "hash-generator",
-    name: "Password/Hash Generator",
+    slug: "password-hash-generator-verifier",
+    name: "Password Hash Generator",
     category: "Security & Identity",
     description:
       "Generates secure random passwords or MD5/SHA-256 hashes for testing.",
