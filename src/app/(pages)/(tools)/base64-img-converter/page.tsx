@@ -873,7 +873,7 @@ function DecodePanel() {
         </AnimatePresence>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="flex h-[360px] flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2 sm:h-[440px]">
+        <div className="flex h-90 flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2 sm:h-110">
           <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-2.5">
             <span className="font-mono text-xs uppercase tracking-wider text-white/45">
               Base64 / Data URI
@@ -890,7 +890,7 @@ function DecodePanel() {
             className="w-full flex-1 resize-none overflow-auto bg-transparent p-4 font-mono text-[13px] leading-relaxed text-white/85 outline-none placeholder:text-white/30"
           />
         </div>
-        <div className="flex h-[360px] flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2 sm:h-[440px]">
+        <div className="flex h-90 flex-col overflow-hidden rounded-lg border border-white/10 bg-white/2 sm:h-110">
           <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-2.5">
             <span className="font-mono text-xs uppercase tracking-wider text-white/45">
               Preview

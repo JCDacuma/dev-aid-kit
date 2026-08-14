@@ -666,7 +666,7 @@ const HeadersTable = memo(function HeadersTable({
         <tbody>
           {entries.map(([key, value]) => (
             <tr key={key} className="border-b border-white/5 last:border-0">
-              <td className="w-1/3 break-words border-r border-white/5 bg-black/20 px-3 py-2 align-top text-white/50">
+              <td className="w-1/3 wrap-break-word border-r border-white/5 bg-black/20 px-3 py-2 align-top text-white/50">
                 {key}
               </td>
               <td className="break-all px-3 py-2 align-top text-white/80">
