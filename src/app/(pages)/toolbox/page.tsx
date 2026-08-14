@@ -1,10 +1,10 @@
 "use client";
-
-import { useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import SearchBar from "@/app/components/ui/searchbar";
 import CategoryFilter from "@/app/components/ui/category-filter";
 import ToolCard from "@/app/components/ui/toolcards";
+import HeroSection from "@/app/components/layouts/hero-sections";
 import {
   CATEGORY_COLORS,
   CATEGORY_ORDER,
@@ -13,11 +13,6 @@ import {
 } from "@/app/lib/tools";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-
-const headerVariants: Variants = {
-  hidden: { opacity: 0, y: -8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
-};
 
 const controlsVariants: Variants = {
   hidden: { opacity: 0, y: -6 },
@@ -37,23 +32,19 @@ const sectionVariants: Variants = {
   exit: { opacity: 0, transition: { duration: 0.15, ease: EASE } },
 };
 
-// Replace cardVariants with scroll-aware version
+// Scroll-aware, and now reversible (hides smoothly when scrolled out of view)
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: (index: number) => ({
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
+      duration: 0.4,
       ease: EASE,
-      delay: Math.min(index % 3, 2) * 0.08,
+      delay: Math.min(index % 3, 2) * 0.06,
     },
   }),
-  exit: {
-    opacity: 0,
-    scale: 0.98,
-    transition: { duration: 0.15, ease: EASE },
-  },
+  exit: { opacity: 0, scale: 0.98, transition: { duration: 0.15, ease: EASE } },
 };
 
 const emptyStateVariants: Variants = {
@@ -62,65 +53,69 @@ const emptyStateVariants: Variants = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: EASE } },
 };
 
+// Only animate cards near the top of the list on first paint; cards further
+// down just rely on whileInView, which is cheap since IntersectionObserver
+// does the work off the main thread instead of scroll listeners.
+const VIEWPORT = {
+  once: false,
+  amount: 0.25,
+  margin: "0px 0px -80px 0px",
+} as const;
+
 export default function MainPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ToolCategory | "All">("All");
 
+  // Defers re-filtering while the user is still typing fast, keeping input
+  // latency low even with a large TOOLS array.
+  const deferredQuery = useDeferredValue(query);
+
+  const handleQueryChange = useCallback((v: string) => setQuery(v), []);
+  const handleCategoryChange = useCallback(
+    (c: ToolCategory | "All") => setCategory(c),
+    [],
+  );
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     return TOOLS.filter((tool) => {
       const matchesCategory = category === "All" || tool.category === category;
-      const matchesQuery =
-        q.length === 0 ||
+      if (!matchesCategory) return false;
+      if (q.length === 0) return true;
+      return (
         tool.name.toLowerCase().includes(q) ||
-        tool.description.toLowerCase().includes(q);
-      return matchesCategory && matchesQuery;
+        tool.description.toLowerCase().includes(q)
+      );
     });
-  }, [query, category]);
+  }, [deferredQuery, category]);
 
   const grouped = useMemo(() => {
-    return CATEGORY_ORDER.map((cat) => ({
-      category: cat,
-      tools: filtered.filter((tool) => tool.category === cat),
-    })).filter((group) => group.tools.length > 0);
+    const groups: { category: ToolCategory; tools: typeof TOOLS }[] = [];
+    for (const cat of CATEGORY_ORDER) {
+      const tools = filtered.filter((tool) => tool.category === cat);
+      if (tools.length > 0) groups.push({ category: cat, tools });
+    }
+    return groups;
   }, [filtered]);
 
   return (
     <main className="min-h-screen bg-[#0a0b0d]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-12 sm:px-8 sm:py-16">
-        <motion.header
-          initial="hidden"
-          animate="show"
-          variants={headerVariants}
-          className="flex flex-col gap-4"
-        >
-          <h2 className="font-mono text-2xl flex items-center  gap-2 font-semibold tracking-tight text-white sm:text-3xl">
-            <span className="text-emerald-400">
-              <img
-                src="/logo/codepentry_logo.svg"
-                className="h-10 w-10"
-                alt=""
-              />
-            </span>{" "}
-            DevAidKit
-          </h2>
-          <p className="max-w-xl text-sm leading-relaxed text-white/65 sm:text-[15px]">
-            A local-first collection of everyday developer tools. Nothing leaves
-            your browser, nothing to install.
-          </p>
-        </motion.header>
-
+      <HeroSection />
+      <div
+        id="tools"
+        className="mx-auto flex w-full max-w-7xl scroll-mt-8 flex-col gap-10 px-5 py-12 sm:px-8 sm:py-16"
+      >
         <motion.div
           initial="hidden"
           animate="show"
           variants={controlsVariants}
           className="flex flex-col gap-4"
         >
-          <SearchBar value={query} onChange={setQuery} />
-          <CategoryFilter active={category} onChange={setCategory} />
+          <SearchBar value={query} onChange={handleQueryChange} />
+          <CategoryFilter active={category} onChange={handleCategoryChange} />
         </motion.div>
 
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="popLayout" initial={false}>
           {grouped.length === 0 ? (
             <motion.div
               key="empty"
@@ -139,53 +134,47 @@ export default function MainPage() {
             </motion.div>
           ) : (
             <motion.div key="results" className="flex flex-col gap-10">
-              <AnimatePresence mode="popLayout">
-                {grouped.map((group) => (
-                  <motion.section
-                    key={group.category}
-                    layout="position"
+              {grouped.map((group) => (
+                <motion.section
+                  key={group.category}
+                  layout="position"
+                  className="flex flex-col gap-4"
+                >
+                  <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-white/35">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{
+                        backgroundColor: CATEGORY_COLORS[group.category],
+                      }}
+                    />
+                    {group.category}
+                  </div>
+                  <motion.div
+                    variants={sectionVariants}
                     initial="hidden"
                     animate="show"
-                    exit="exit"
-                    variants={sectionVariants}
-                    className="flex flex-col gap-4"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
                   >
-                    <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-white/35">
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{
-                          backgroundColor: CATEGORY_COLORS[group.category],
-                        }}
-                      />
-                      {group.category}
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      <AnimatePresence mode="popLayout">
-                        {group.tools.map((tool, index) => (
-                          <motion.div
-                            key={tool.slug}
-                            layout="position"
-                            custom={index}
-                            variants={cardVariants}
-                            initial="hidden"
-                            whileInView="show"
-                            exit="exit"
-                            viewport={{
-                              once: true,
-                              amount: 0.2,
-                              margin: "0px 0px -60px 0px",
-                            }}
-                            className="h-full"
-                          >
-                            <ToolCard tool={tool} />
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  </motion.section>
-                ))}
-              </AnimatePresence>
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      {group.tools.map((tool, index) => (
+                        <motion.div
+                          key={tool.slug}
+                          layout
+                          custom={index}
+                          variants={cardVariants}
+                          initial="hidden"
+                          whileInView="show"
+                          exit="exit"
+                          viewport={VIEWPORT}
+                          className="h-full"
+                        >
+                          <ToolCard tool={tool} />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
+                </motion.section>
+              ))}
             </motion.div>
           )}
         </AnimatePresence>

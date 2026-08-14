@@ -1,20 +1,22 @@
+import { memo } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 import { CATEGORY_COLORS, type Tool } from "@/app/lib/tools";
 import { motion } from "framer-motion";
+
 const MotionLink = motion.create(Link);
-const imageVariants = {
-  rest: { opacity: 0.2, scale: 1 },
-  hover: { opacity: 0.5, scale: 1.08 },
-};
+
 const cardVariants = {
   rest: { y: 0 },
   hover: { y: -3 },
 };
-export default function ToolCard({ tool }: { tool: Tool }) {
+
+const TRANSITION = { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const };
+
+function ToolCard({ tool }: { tool: Tool }) {
   const accent = CATEGORY_COLORS[tool.category];
   const Icon = tool.icon;
+
   return (
     <MotionLink
       href={`/${tool.slug}`}
@@ -22,9 +24,9 @@ export default function ToolCard({ tool }: { tool: Tool }) {
       whileHover="hover"
       animate="rest"
       variants={cardVariants}
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      transition={TRANSITION}
       style={{ "--accent": accent } as React.CSSProperties}
-      className="group relative flex h-full flex-col gap-4 overflow-hidden rounded-lg border border-white/10 bg-white/2 p-5 transition-colors duration-200 hover:border-white/15"
+      className="group relative flex h-full flex-col gap-4 overflow-hidden rounded-lg border border-white/10 bg-white/2 p-5 transition-colors duration-200 hover:border-white/15 will-change-transform"
     >
       <div className="absolute inset-0 bg-linear-to-b from-[#0a0b0d]/20 via-[#0a0b0d]/40 to-[#0a0b0d]/70" />
       <span className="pointer-events-none absolute left-0 top-0 z-10 h-3 w-3 border-l border-t border-transparent transition-all duration-200 group-hover:h-4 group-hover:w-4 group-hover:border-(--accent)" />
@@ -55,3 +57,5 @@ export default function ToolCard({ tool }: { tool: Tool }) {
     </MotionLink>
   );
 }
+
+export default memo(ToolCard);
