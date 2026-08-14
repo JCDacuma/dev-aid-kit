@@ -14,6 +14,7 @@
     "bs58": "^6.0.0",
     "colorjs.io": "^0.7.1",
     "cronstrue": "^3.24.0",
+    "curlconverter": "^4.12.0",
     "esbuild-wasm": "^0.28.2",
     "framer-motion": "^13.1.0",
     "hash-wasm": "^4.12.0",

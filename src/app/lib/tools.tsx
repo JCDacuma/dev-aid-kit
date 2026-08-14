@@ -7,19 +7,28 @@ import {
   FileJson2,
   KeyRound,
   Lock,
-  FileUp,
   Clock,
   Fingerprint,
   Palette,
+  FileText,
+  Send,
+  Terminal,
+  Sprout,
+  Network,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 
 export type ToolCategory =
   | "Formatting & Beautification"
+  | "Network & API"
+  | "Database Utilities"
   | "Conversion Tools"
   | "Security & Identity"
   | "Text & Utilities"
   | "Design Utilities";
+
+export type ToolStatus = "Finished" | "Unfinished";
 
 export interface Tool {
   slug: string;
@@ -28,10 +37,13 @@ export interface Tool {
   description: string;
   icon: LucideIcon;
   image?: string;
+  status?: ToolStatus;
 }
 
 export const CATEGORY_ORDER: ToolCategory[] = [
   "Formatting & Beautification",
+  "Network & API",
+  "Database Utilities",
   "Conversion Tools",
   "Security & Identity",
   "Text & Utilities",
@@ -40,6 +52,8 @@ export const CATEGORY_ORDER: ToolCategory[] = [
 
 export const CATEGORY_COLORS: Record<ToolCategory, string> = {
   "Formatting & Beautification": "#6EE7B7",
+  "Network & API": "#38BDF8",
+  "Database Utilities": "#FB923C",
   "Conversion Tools": "#60A5FA",
   "Security & Identity": "#F472B6",
   "Text & Utilities": "#FBBF24",
@@ -51,106 +65,162 @@ export const TOOLS: Tool[] = [
     slug: "json-formatter",
     name: "JSON Beautifier/Minifier",
     category: "Formatting & Beautification",
-    description:
-      "Quickly makes minified or messy API responses human-readable.",
+    description: "Quickly makes minified/messy API responses human-readable.",
     icon: Braces,
     image: "/toolkit_image/json_formatter.png",
+    status: "Finished",
   },
   {
     slug: "sql-formatter",
     name: "SQL Formatter",
-    category: "Formatting & Beautification",
+    category: "Database Utilities",
     description:
-      "Cleans up complex, single-line SQL queries for better readability while debugging.",
+      "Cleans up complex, single-line SQL queries for better readability during debugging.",
     icon: Database,
     image: "/toolkit_image/sql_formatter.jpg",
+    status: "Finished",
   },
   {
     slug: "js-css-minifier",
     name: "CSS/JS Minifier",
     category: "Formatting & Beautification",
-    description: "Reduces file size before production deployment.",
+    description: "Reduces file size for production deployment.",
     icon: FileCode2,
     image: "/toolkit_image/js_minifier.png",
+    status: "Finished",
   },
-
+  {
+    slug: "http-request-builder",
+    name: "HTTP Request Builder",
+    category: "Network & API",
+    description:
+      "Builds and sends GET, POST, PUT, PATCH, and DELETE requests with headers, query parameters, and request bodies without opening a full API client.",
+    icon: Send,
+    status: "Unfinished",
+  },
+  {
+    slug: "curl-to-code-converter",
+    name: "cURL to Code Converter",
+    category: "Network & API",
+    description:
+      "Builds and sends GET, POST, PUT, PATCH, and DELETE requests with headers, query parameters, and request bodies without opening a full API client.",
+    icon: Terminal,
+    status: "Unfinished",
+  },
+  {
+    slug: "database-seed-data-generator",
+    name: "Database Seed Data Generator",
+    category: "Database Utilities",
+    description:
+      "Generates realistic sample records for testing database-driven applications.",
+    icon: Sprout,
+    status: "Unfinished",
+  },
+  {
+    slug: "erd-generator",
+    name: "ERD Generator",
+    category: "Database Utilities",
+    description:
+      "Creates a visual entity relationship diagram from database table definitions or schema input.",
+    icon: Network,
+    status: "Unfinished",
+  },
   {
     slug: "url-encode-decode",
     name: "URL Encoder/Decoder",
     category: "Conversion Tools",
     description:
-      "Debugs and fixes improperly formatted URLs in API calls or browser links.",
+      "Easily debugs and fixes improperly formatted URLs in API calls or browser links.",
     icon: Link2,
     image: "/toolkit_image/url_encode_decode.png",
+    status: "Finished",
   },
   {
     slug: "base64-encode-decode",
     name: "Base64 Encoder/Decoder",
     category: "Conversion Tools",
     description:
-      "Decodes sensitive payload data or encodes binary files into text.",
+      "Quickly decodes sensitive payload data or encodes binary files into text format.",
     icon: Binary,
     image: "/toolkit_image/base64_encode_decode.png",
-  },
-  {
-    slug: "base64-img-converter",
-    name: "Image to Base64 Converter",
-    category: "Conversion Tools",
-    description: "Convert images to Base64 strings for web use",
-    icon: FileUp,
-    image: "/toolkit_image/image_to_base64.png",
+    status: "Finished",
   },
   {
     slug: "yaml-json-converter",
     name: "JSON to YAML Converter",
     category: "Conversion Tools",
     description:
-      "Converts between config formats used across DevOps and Kubernetes.",
+      "Speeds up conversion between config formats frequently used in DevOps/Kubernetes.",
     icon: FileJson2,
     image: "/toolkit_image/json_to_yml.png",
+    status: "Finished",
   },
   {
     slug: "jwt-decoder-debugger",
     name: "JWT Debugger/Decoder",
     category: "Security & Identity",
     description:
-      "Inspects token payloads and expiration times, entirely in the browser.",
+      "Inspects token payloads and expiration times securely in the browser.",
     icon: KeyRound,
     image: "/toolkit_image/jwt_debugger.png",
+    status: "Finished",
   },
   {
     slug: "password-hash-generator-verifier",
-    name: "Password Hash Generator",
+    name: "Password/Hash Generator",
     category: "Security & Identity",
     description:
-      "Generates secure random passwords or MD5/SHA-256 hashes for testing.",
+      "Generates secure random passwords or hashes (MD5, SHA-256) for testing.",
     icon: Lock,
     image: "/toolkit_image/password_hash_generate.png",
+    status: "Finished",
   },
-
+  {
+    slug: "password-strength-checker",
+    name: "Password Strength Checker",
+    category: "Security & Identity",
+    description:
+      "Evaluates password strength and explains common weaknesses without storing the entered password.",
+    icon: ShieldCheck,
+    status: "Unfinished",
+  },
+  {
+    slug: "markdown-live-preview",
+    name: "Markdown Live Preview",
+    category: "Text & Utilities",
+    description:
+      "Provides a fast, zero-setup editor for writing documentation/README files.",
+    icon: FileText,
+    image: "/toolkit_image/markdown_preview.png",
+    status: "Finished",
+  },
   {
     slug: "cron-explainer",
     name: "Cron Expression Explainer",
     category: "Text & Utilities",
-    description: "Translates cryptic cron strings into plain English.",
+    description:
+      "Translates cryptic Cron strings into plain English, reducing scheduling errors.",
     icon: Clock,
     image: "/toolkit_image/cron_explainer.png",
+    status: "Finished",
   },
   {
     slug: "uuid-cuid-generator",
     name: "UUID/CUID Generator",
     category: "Text & Utilities",
     description:
-      "Generates unique IDs for database testing, no dependencies required.",
+      "Instantly generates unique IDs for database testing without external dependencies.",
     icon: Fingerprint,
     image: "/toolkit_image/uuid.png",
+    status: "Finished",
   },
   {
     slug: "color-converter",
     name: "Color Format Converter",
-    category: "Text & Utilities",
-    description: "Converts between HEX, RGB and HSL for quick CSS adjustments.",
+    category: "Design Utilities",
+    description: "Converts between HEX, RGB, HSL for quick CSS adjustments.",
     icon: Palette,
     image: "/toolkit_image/color_format.png",
+    status: "Finished",
   },
 ];
