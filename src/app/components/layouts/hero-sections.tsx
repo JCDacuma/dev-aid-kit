@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import HeroBackground from "@/app/components/ui/hero-backgrounds";
-import { TOOLS, CATEGORY_ORDER } from "@/app/lib/tools";
+import { TOOLS } from "@/app/lib/tools";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -17,13 +18,43 @@ const fadeUp: Variants = {
 
 function TerminalCycle() {
   const [index, setIndex] = useState(0);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (TOOLS.length === 0) return;
-    const id = setInterval(() => {
-      setIndex((i) => (i + 1) % TOOLS.length);
-    }, 2000);
-    return () => clearInterval(id);
+
+    const root = rootRef.current;
+    // Only tick the interval while the terminal text is actually visible —
+    // avoids background re-renders once the hero has scrolled out of view.
+    let id: ReturnType<typeof setInterval> | null = null;
+
+    const start = () => {
+      if (id !== null) return;
+      id = setInterval(() => {
+        setIndex((i) => (i + 1) % TOOLS.length);
+      }, 2000);
+    };
+    const stop = () => {
+      if (id === null) return;
+      clearInterval(id);
+      id = null;
+    };
+
+    if (!root) {
+      start();
+      return () => stop();
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0 },
+    );
+    io.observe(root);
+
+    return () => {
+      stop();
+      io.disconnect();
+    };
   }, []);
 
   const tool = TOOLS[index];
@@ -31,6 +62,7 @@ function TerminalCycle() {
 
   return (
     <div
+      ref={rootRef}
       className="flex h-6 items-center justify-center gap-2 font-mono text-sm text-white/50 sm:text-base"
       aria-live="polite"
       aria-label="Terminal showing available developer tools"
@@ -44,7 +76,7 @@ function TerminalCycle() {
           transition={{ duration: 0.3, ease: EASE }}
           className="text-white/80"
         >
-          {tool.name.toLowerCase().replace(/\s+/g, "-")}
+          {tool.name}
         </motion.span>
       </AnimatePresence>
     </div>
@@ -65,7 +97,6 @@ export default function HeroSection() {
       className="relative isolate flex min-h-160 h-screen w-full flex-col items-center justify-center overflow-hidden border-b border-white/5 px-5 py-24 sm:min-h-[82vh] sm:py-28"
     >
       <HeroBackground />
-
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(10,11,13,0.15)_0%,rgba(10,11,13,0.75)_65%,rgba(10,11,13,0.96)_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-b from-transparent to-[#0a0b0d]" />
 
@@ -112,13 +143,12 @@ export default function HeroSection() {
           animate="show"
           custom={0.24}
           variants={fadeUp}
-          className="mt-2 flex flex-col items-center gap-5  sm:gap-8"
+          className="mt-2 flex flex-col items-center gap-5 sm:gap-8"
         >
           <div className="flex items-center gap-4 font-mono text-xs text-white/35 sm:gap-5">
             <span>
               <span className="text-white/70">{TOOLS.length}</span> tools ready
             </span>
-
             <span>
               <span className="text-white/70">100%</span> private (client-side)
             </span>
@@ -126,7 +156,7 @@ export default function HeroSection() {
           <a
             href="#tools"
             onClick={scrollToTools}
-            className="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-5 py-2.5 font-mono text-sm font-medium text-emerald-300 transition-colors hover:border-emerald-400/50 hover:bg-emerald-400/15 focus-visible:outline  focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            className="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-5 py-2.5 font-mono text-sm font-medium text-emerald-300 transition-colors hover:border-emerald-400/50 hover:bg-emerald-400/15 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
           >
             Explore Free Dev Tools
           </a>

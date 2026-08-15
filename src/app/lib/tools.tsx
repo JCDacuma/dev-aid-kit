@@ -16,6 +16,7 @@ import {
   DatabasePlus,
   Network,
   ShieldCheck,
+  Hash,
   type LucideIcon,
 } from "lucide-react";
 
@@ -106,15 +107,7 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/json_formatter.png",
     status: "Finished",
   },
-  {
-    slug: "database-query-builder",
-    name: "Database Query Builder",
-    category: "Database Utilities",
-    description:
-      "Build SELECT/INSERT/UPDATE/DELETE queries visually without manually writing SQL.",
-    icon: DatabasePlus,
-    status: "Unfinished",
-  },
+
   {
     slug: "sql-formatter",
     name: "SQL Formatter",
@@ -132,6 +125,15 @@ export const TOOLS: Tool[] = [
     description:
       "Creates a visual entity relationship diagram from database table definitions or schema input.",
     icon: Network,
+    status: "Unfinished",
+  },
+  {
+    slug: "database-query-builder",
+    name: "Database Query Builder",
+    category: "Database Utilities",
+    description:
+      "Build SELECT/INSERT/UPDATE/DELETE queries visually without manually writing SQL.",
+    icon: DatabasePlus,
     status: "Unfinished",
   },
   {
@@ -205,15 +207,15 @@ export const TOOLS: Tool[] = [
     status: "Unfinished",
   },
   {
-    slug: "markdown-live-preview",
-    name: "Markdown Live Preview",
+    slug: "regex-tester",
+    name: "Regex Tester",
     category: "Text & Utilities",
     description:
-      "Provides a fast, zero-setup editor for writing documentation/README files.",
-    icon: FileText,
-    image: "/toolkit_image/markdown_preview.png",
-    status: "Finished",
+      "Test regular expressions with match highlighting, groups, and explanations.",
+    icon: Hash,
+    status: "Unfinished",
   },
+
   {
     slug: "cron-explainer",
     name: "Cron Expression Explainer",

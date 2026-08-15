@@ -1,4 +1,5 @@
 "use client";
+
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import SearchBar from "@/app/components/ui/searchbar";
@@ -32,7 +33,10 @@ const sectionVariants: Variants = {
   exit: { opacity: 0, transition: { duration: 0.15, ease: EASE } },
 };
 
-// Scroll-aware, and now reversible (hides smoothly when scrolled out of view)
+// Scroll-aware and reversible (hides smoothly when scrolled out of view).
+// layout="position" (not full `layout`) is what keeps this cheap: it only
+// interpolates x/y transforms instead of measuring + animating size/borders
+// on every card, every time whileInView toggles during a scroll.
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: (index: number) => ({
@@ -53,9 +57,8 @@ const emptyStateVariants: Variants = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: EASE } },
 };
 
-// Only animate cards near the top of the list on first paint; cards further
-// down just rely on whileInView, which is cheap since IntersectionObserver
-// does the work off the main thread instead of scroll listeners.
+// IntersectionObserver-driven (whileInView), so this is off the main thread
+// scroll path — cheap regardless of list size.
 const VIEWPORT = {
   once: false,
   amount: 0.25,
@@ -126,14 +129,17 @@ export default function MainPage() {
               className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-white/10 py-16 text-center"
             >
               <p className="font-mono text-sm text-white/50">
-                $ no tools matched &quot;{query}&quot;
+                No tools matched &quot;{query}&quot;
               </p>
               <p className="text-xs text-white/30">
                 Try a different search or clear the filter.
               </p>
             </motion.div>
           ) : (
-            <motion.div key="results" className="flex flex-col gap-10">
+            <motion.div
+              key="results"
+              className="flex flex-col gap-10 min-h-[calc(100vh-250px)]"
+            >
               {grouped.map((group) => (
                 <motion.section
                   key={group.category}
@@ -159,7 +165,7 @@ export default function MainPage() {
                       {group.tools.map((tool, index) => (
                         <motion.div
                           key={tool.slug}
-                          layout
+                          layout="position"
                           custom={index}
                           variants={cardVariants}
                           initial="hidden"

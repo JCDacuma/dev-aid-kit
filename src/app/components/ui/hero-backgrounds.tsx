@@ -27,6 +27,27 @@ function createParticle(x: number, y: number, color: string): ParticleT {
   };
 }
 
+const LAYERS = [
+  {
+    ribbonCount: 12,
+    step: 5,
+    offsetMod: 0,
+    freqScale: 0.0035,
+    ampScale: 46,
+    speedScale: 1,
+    primary: true,
+  },
+  {
+    ribbonCount: 8,
+    step: 7,
+    offsetMod: 1.1,
+    freqScale: 0.0075,
+    ampScale: 24,
+    speedScale: 0.65,
+    primary: false,
+  },
+] as const;
+
 export default function HeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -46,6 +67,15 @@ export default function HeroBackground() {
     let width = 0;
     let height = 0;
     let animationFrameId = 0;
+
+    // Rendering only happens when all of these are true. This is what kills
+    // the hero -> cards scroll freeze: the canvas simply stops doing work
+    // (no trig, no fillRect, no stroke) the moment it's scrolled off-screen
+    // or the tab is backgrounded, instead of burning main-thread time on a
+    // frame nobody can see while the browser is also trying to scroll.
+    const state = { inView: true, tabVisible: !document.hidden };
+    const shouldRun = () => state.inView && state.tabVisible && !reduceMotion;
+
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     const particles: ParticleT[] = [];
     const ripple = {
@@ -81,12 +111,10 @@ export default function HeroBackground() {
       mouse.targetX = p.x - width / 2;
       mouse.targetY = p.y - height / 2;
     };
-
     const handlePointerLeave = () => {
       mouse.targetX = 0;
       mouse.targetY = 0;
     };
-
     const handlePointerDown = (e: MouseEvent | TouchEvent) => {
       const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
       const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
@@ -118,32 +146,8 @@ export default function HeroBackground() {
         Math.cos(x * 0.0028 - t * 0.4 + o * 2)) /
       2;
 
-    const layers = [
-      {
-        ribbonCount: 12,
-        step: 5,
-        offsetMod: 0,
-        freqScale: 0.0035,
-        ampScale: 46,
-        speedScale: 1,
-        primary: true,
-      },
-      {
-        ribbonCount: 8,
-        step: 7,
-        offsetMod: 1.1,
-        freqScale: 0.0075,
-        ampScale: 24,
-        speedScale: 0.65,
-        primary: false,
-      },
-    ];
-
-    const render = (now: number) => {
-      const dt = Math.min((now - lastTime) / 1000, 0.1);
-      lastTime = now;
-      if (!reduceMotion) time += dt * 0.8;
-
+    const draw = (dt: number) => {
+      time += dt * 0.8;
       const lerp = 1 - Math.exp(-9 * dt);
       mouse.x += (mouse.targetX - mouse.x) * lerp;
       mouse.y += (mouse.targetY - mouse.y) * lerp;
@@ -176,7 +180,7 @@ export default function HeroBackground() {
         ripple.active = false;
       }
 
-      layers.forEach((layer) => {
+      LAYERS.forEach((layer) => {
         ctx.globalCompositeOperation = layer.primary
           ? "source-over"
           : "lighten";
@@ -241,6 +245,7 @@ export default function HeroBackground() {
             if (x === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
+
           ctx.globalAlpha = baseAlpha;
           ctx.strokeStyle = gradient;
           ctx.lineWidth = (layer.primary ? 1.2 : 0.7) + (1 - progress) * 0.4;
@@ -250,14 +255,54 @@ export default function HeroBackground() {
 
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
+    };
+
+    const render = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+      draw(dt);
       animationFrameId = requestAnimationFrame(render);
     };
 
-    animationFrameId = requestAnimationFrame(render);
+    const startLoop = () => {
+      if (animationFrameId !== 0) return;
+      lastTime = performance.now();
+      animationFrameId = requestAnimationFrame(render);
+    };
+    const stopLoop = () => {
+      if (animationFrameId === 0) return;
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = 0;
+    };
+    const syncLoop = () => (shouldRun() ? startLoop() : stopLoop());
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        state.inView = entry.isIntersecting;
+        syncLoop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(container);
+
+    const handleVisibilityChange = () => {
+      state.tabVisible = !document.hidden;
+      syncLoop();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Reduced-motion users get a single static frame instead of a loop.
+    if (shouldRun()) {
+      startLoop();
+    } else {
+      draw(0);
+    }
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      stopLoop();
+      io.disconnect();
       ro.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       canvas.removeEventListener("mousemove", handlePointerMove);
       canvas.removeEventListener("touchmove", handlePointerMove);
       canvas.removeEventListener("mouseleave", handlePointerLeave);

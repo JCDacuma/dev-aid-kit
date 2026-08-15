@@ -33,6 +33,7 @@ function ToolCard({ tool }: { tool: Tool }) {
       <span className="pointer-events-none absolute right-0 top-0 z-10 h-3 w-3 border-r border-t border-transparent transition-all duration-200 group-hover:h-4 group-hover:w-4 group-hover:border-(--accent)" />
       <span className="pointer-events-none absolute bottom-0 left-0 z-10 h-3 w-3 border-b border-l border-transparent transition-all duration-200 group-hover:h-4 group-hover:w-4 group-hover:border-(--accent)" />
       <span className="pointer-events-none absolute bottom-0 right-0 z-10 h-3 w-3 border-b border-r border-transparent transition-all duration-200 group-hover:h-4 group-hover:w-4 group-hover:border-(--accent)" />
+
       <div className="relative z-10 flex items-start justify-between">
         <div
           className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-black/40"
@@ -46,6 +47,7 @@ function ToolCard({ tool }: { tool: Tool }) {
           className="mt-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         />
       </div>
+
       <div className="relative z-10 flex flex-1 flex-col gap-1.5">
         <h3 className="font-mono text-[15px] leading-snug text-white/90 line-clamp-1">
           {tool.name}
