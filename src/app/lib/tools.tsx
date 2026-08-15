@@ -12,7 +12,7 @@ import {
   Palette,
   FileText,
   Send,
-  Terminal,
+  FileCode,
   Sprout,
   Network,
   ShieldCheck,
@@ -62,21 +62,21 @@ export const CATEGORY_COLORS: Record<ToolCategory, string> = {
 
 export const TOOLS: Tool[] = [
   {
-    slug: "json-formatter",
-    name: "JSON Beautifier/Minifier",
-    category: "Formatting & Beautification",
-    description: "Quickly makes minified/messy API responses human-readable.",
-    icon: Braces,
-    image: "/toolkit_image/json_formatter.png",
-    status: "Finished",
-  },
-  {
     slug: "js-css-minifier",
     name: "CSS/JS Minifier",
     category: "Formatting & Beautification",
     description: "Reduces file size for production deployment.",
     icon: FileCode2,
     image: "/toolkit_image/js_minifier.png",
+    status: "Finished",
+  },
+  {
+    slug: "html-formatter-minifier",
+    name: "HTML Formatter/Minifier",
+    category: "Formatting & Beautification",
+    description: "Format messy HTML or compress it for production.",
+    icon: FileCode,
+    image: "/toolkit_image/html_formatter.png",
     status: "Finished",
   },
   {
@@ -95,6 +95,15 @@ export const TOOLS: Tool[] = [
     description:
       "Quickly explains status codes like 301, 401, 403, 404, 429, and 500.",
     icon: Network,
+    status: "Finished",
+  },
+  {
+    slug: "json-formatter",
+    name: "JSON Beautifier/Minifier",
+    category: "Formatting & Beautification",
+    description: "Quickly makes minified/messy API responses human-readable.",
+    icon: Braces,
+    image: "/toolkit_image/json_formatter.png",
     status: "Finished",
   },
   {
