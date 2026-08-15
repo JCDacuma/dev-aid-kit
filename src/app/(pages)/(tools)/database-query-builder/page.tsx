@@ -27,6 +27,9 @@ import {
   RotateCcw,
   Rows3,
   PencilLine,
+  AlertTriangle,
+  XCircle,
+  Info,
 } from "lucide-react";
 import type { RuleGroupType } from "react-querybuilder";
 import {
@@ -37,7 +40,7 @@ import {
 import {
   sqlBuilderReducer,
   createDefaultQueryBuilderState,
-  generateSQL,
+  buildQuery,
   minifySQL,
   tokenizeSQL,
   DIALECT_OPTIONS,
@@ -52,12 +55,14 @@ import {
   type OrderByDef,
   type UpdateAssignment,
   type SQLTokenType,
+  type ValidationIssue,
+  type IssueSeverity,
 } from "@/app/helpers/sqlBuilder";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const SUGGESTIONS_LIST_ID = "sql-column-suggestions";
-const CONDITION_FIELDS = [{ name: "", label: "Column" }];
-
+const CONDITION_FIELDS = [{ name: "__placeholder__", label: "Column" }];
+const FIELD_PLACEHOLDER_SENTINEL = "~";
 const TOKEN_COLOR_CLASS: Record<SQLTokenType, string> = {
   keyword: "text-cyan-400",
   string: "text-emerald-400",
@@ -116,18 +121,40 @@ const RQBStyles = memo(function RQBStyles() {
       .rqb-orange .ruleGroup-remove, .rqb-orange .rule-remove { color: rgba(248,113,113,0.75); border-color: rgba(248,113,113,0.2); }
       .rqb-orange .ruleGroup-remove:hover, .rqb-orange .rule-remove:hover { color: #f87171; border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.08); }
       .rqb-orange .ruleGroup-notToggle { display: flex; align-items: center; gap: 0.3rem; color: rgba(255,255,255,0.45); font-size: 11px; }
+      .rqb-orange .rule-fields-hint { color: rgba(255,255,255,0.3); font-size: 11px; font-style: italic; }
+
+      @media (max-width: 480px) {
+        .rqb-orange .rqb-field-input,
+        .rqb-orange .rqb-value-input {
+          min-width: 100px;
+          flex: 1 1 100px;
+        }
+        .rqb-orange .ruleGroup { padding: 0.5rem; }
+        .rqb-orange .rule { padding: 0.4rem; gap: 0.3rem; }
+        .rqb-orange select, .rqb-orange input {
+          font-size: 11.5px;
+          padding: 0.3rem 0.4rem;
+        }
+        .rqb-orange button {
+          padding: 0.28rem 0.45rem;
+          font-size: 10.5px;
+        }
+      }
     `}</style>
   );
 });
 
 const RuleFieldInput = memo(function RuleFieldInput(props: FieldSelectorProps) {
+  const displayValue =
+    props.value === FIELD_PLACEHOLDER_SENTINEL ? "" : (props.value ?? "");
   return (
     <input
-      className="rqb-field-input min-w-32.5 flex-1"
+      className="rqb-field-input min-w-0 flex-1"
       list={SUGGESTIONS_LIST_ID}
-      value={props.value ?? ""}
+      value={displayValue}
       onChange={(event) => props.handleOnChange(event.target.value)}
       placeholder="column"
+      autoFocus
     />
   );
 });
@@ -144,7 +171,7 @@ const RuleValueInput = memo(function RuleValueInput(props: ValueEditorProps) {
   }, [props.operator]);
   return (
     <input
-      className="rqb-value-input min-w-32.5 flex-1"
+      className="rqb-value-input min-w-0 flex-1"
       value={
         typeof props.value === "string"
           ? props.value
@@ -161,6 +188,10 @@ const RQB_CONTROL_ELEMENTS = {
   valueEditor: RuleValueInput,
 };
 const RQB_TRANSLATIONS = {
+  fields: {
+    placeholderName: FIELD_PLACEHOLDER_SENTINEL,
+    placeholderLabel: "Column",
+  },
   addRule: { label: "+ Condition", title: "Add a condition" },
   addGroup: { label: "+ Group", title: "Add a nested group" },
   removeRule: { label: "\u2715", title: "Remove condition" },
@@ -184,7 +215,7 @@ const SectionCard = memo(function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-white/2 p-5">
+    <section className="flex flex-col gap-2.5 rounded-lg border border-zinc-800 bg-white/[0.02] p-3.5 sm:gap-3 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Icon size={14} strokeWidth={1.75} className="text-white/40" />
@@ -261,7 +292,7 @@ const TagInput = memo(function TagInput({
       {values.map((value, index) => (
         <span
           key={value}
-          className="flex items-center gap-1 rounded border border-orange-400/30 bg-orange-400/10 px-2 py-1 font-mono text-[11px] text-orange-300"
+          className="flex items-center gap-1.5 rounded border border-orange-400/30 bg-orange-400/10 px-2 py-1 font-mono text-[11px] text-orange-300"
         >
           {value}
           <button
@@ -280,7 +311,7 @@ const TagInput = memo(function TagInput({
         onBlur={commitDraft}
         list={SUGGESTIONS_LIST_ID}
         placeholder={values.length ? "" : placeholder}
-        className="min-w-30 flex-1 bg-transparent px-1 py-0.5 font-mono text-[12px] text-white/85 outline-none placeholder:text-white/25"
+        className="min-w-[120px] flex-1 bg-transparent px-1 py-0.5 font-mono text-[12px] text-white/85 outline-none placeholder:text-white/25"
       />
     </div>
   );
@@ -370,7 +401,7 @@ const JoinRow = memo(function JoinRow({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-zinc-800 bg-black/20 p-3 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-2 rounded-md border border-zinc-800 bg-black/20 p-2.5 sm:p-3 sm:flex-row sm:items-center">
       <select
         value={join.type}
         onChange={(event) =>
@@ -390,7 +421,7 @@ const JoinRow = memo(function JoinRow({
         placeholder="joined_table"
         className="w-full rounded-md border border-zinc-800 bg-black/40 px-2.5 py-2 font-mono text-[12px] text-white/85 outline-none transition-colors duration-150 placeholder:text-white/25 focus:border-orange-400/50 sm:w-40"
       />
-      <div className="flex flex-1 items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-1 sm:flex-row sm:items-center">
         <input
           value={join.leftColumn}
           onChange={(event) =>
@@ -399,7 +430,9 @@ const JoinRow = memo(function JoinRow({
           placeholder="table.column"
           className="min-w-0 flex-1 rounded-md border border-zinc-800 bg-black/40 px-2.5 py-2 font-mono text-[12px] text-white/85 outline-none transition-colors duration-150 placeholder:text-white/25 focus:border-orange-400/50"
         />
-        <span className="shrink-0 font-mono text-[11px] text-white/30">=</span>
+        <span className="hidden shrink-0 font-mono text-[11px] text-white/30 sm:block">
+          =
+        </span>
         <input
           value={join.rightColumn}
           onChange={(event) =>
@@ -412,9 +445,10 @@ const JoinRow = memo(function JoinRow({
       <button
         type="button"
         onClick={() => onRemove(join.id)}
-        className="shrink-0 self-end rounded-md border border-zinc-800 p-2 text-white/35 transition-colors duration-150 hover:border-red-400/40 hover:text-red-400 sm:self-center"
+        className="flex shrink-0 items-center justify-center gap-1.5 self-end rounded-md border border-zinc-800 p-2 font-mono text-[11px] text-white/35 transition-colors duration-150 hover:border-red-400/40 hover:text-red-400 sm:self-center"
       >
         <Trash2 size={13} strokeWidth={1.75} />
+        <span className="sm:hidden">Remove join</span>
       </button>
     </div>
   );
@@ -480,7 +514,11 @@ const ConditionSection = memo(function ConditionSection({
   onChange: (query: RuleGroupType) => void;
 }) {
   return (
-    <SectionCard icon={icon} title={label}>
+    <SectionCard
+      icon={icon}
+      title={label}
+      hint="Type a column, then set an operator"
+    >
       <div className="rqb-orange">
         <QueryBuilder
           fields={CONDITION_FIELDS}
@@ -491,6 +529,7 @@ const ConditionSection = memo(function ConditionSection({
           showNotToggle
           showCloneButtons={false}
           showLockButtons={false}
+          autoSelectField={false}
           controlElements={RQB_CONTROL_ELEMENTS}
           translations={RQB_TRANSLATIONS}
         />
@@ -660,6 +699,71 @@ const HighlightedSQL = memo(function HighlightedSQL({ sql }: { sql: string }) {
   );
 });
 
+const SEVERITY_META: Record<
+  IssueSeverity,
+  {
+    icon: ComponentType<{
+      size?: number;
+      strokeWidth?: number;
+      className?: string;
+    }>;
+    text: string;
+    border: string;
+    bg: string;
+  }
+> = {
+  error: {
+    icon: XCircle,
+    text: "text-red-300",
+    border: "border-red-400/25",
+    bg: "bg-red-400/5",
+  },
+  warning: {
+    icon: AlertTriangle,
+    text: "text-amber-300",
+    border: "border-amber-400/25",
+    bg: "bg-amber-400/5",
+  },
+  info: {
+    icon: Info,
+    text: "text-sky-300",
+    border: "border-sky-400/25",
+    bg: "bg-sky-400/5",
+  },
+};
+
+const ValidationSummary = memo(function ValidationSummary({
+  issues,
+}: {
+  issues: ValidationIssue[];
+}) {
+  if (!issues.length) {
+    return (
+      <div className="flex items-center gap-1.5 rounded-md border border-emerald-400/25 bg-emerald-400/5 px-2.5 py-2 font-mono text-[11px] text-emerald-300">
+        <CheckCircle2 size={12} strokeWidth={2} />
+        No validation issues detected
+      </div>
+    );
+  }
+  return (
+    <div className="flex max-h-40 flex-col gap-1.5 overflow-auto pr-1 sm:max-h-48">
+      {issues.map((issue) => {
+        const meta = SEVERITY_META[issue.severity];
+        const Icon = meta.icon;
+        return (
+          <div
+            key={issue.id}
+            className={`flex items-start gap-1.5 rounded-md border px-2.5 py-2 font-mono text-[11px] leading-relaxed ${meta.border} ${meta.bg} ${meta.text}`}
+          >
+            <Icon size={12} strokeWidth={2} className="mt-0.5 shrink-0" />
+            <span className="break-words">{issue.message}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
 export default function DatabaseQueryBuilderPage() {
   const [state, dispatch] = useReducer(
     sqlBuilderReducer,
@@ -671,7 +775,12 @@ export default function DatabaseQueryBuilderPage() {
   const [copiedMinified, copyMinified] = useCopyToClipboard();
   const [shortcutFlash, setShortcutFlash] = useState(false);
 
-  const sql = useMemo(() => generateSQL(state, dialect), [state, dialect]);
+  const buildResult = useMemo(
+    () => buildQuery(state, dialect),
+    [state, dialect],
+  );
+  const { sql, issues, errorCount, warningCount, infoCount, isValid } =
+    buildResult;
   const minified = useMemo(() => minifySQL(sql), [sql]);
   const hasSQL = sql.trim() !== "";
 
@@ -688,7 +797,6 @@ export default function DatabaseQueryBuilderPage() {
     () => hasSQL && copyMinified(minified),
     [copyMinified, minified, hasSQL],
   );
-
   const setSelectTable = useCallback(
     (table: string) => dispatch({ type: "SELECT_SET_TABLE", table }),
     [],
@@ -753,7 +861,6 @@ export default function DatabaseQueryBuilderPage() {
     (offset: string) => dispatch({ type: "SELECT_SET_OFFSET", offset }),
     [],
   );
-
   const setInsertTable = useCallback(
     (table: string) => dispatch({ type: "INSERT_SET_TABLE", table }),
     [],
@@ -775,7 +882,6 @@ export default function DatabaseQueryBuilderPage() {
       dispatch({ type: "INSERT_SET_CELL", id, column, value }),
     [],
   );
-
   const setUpdateTable = useCallback(
     (table: string) => dispatch({ type: "UPDATE_SET_TABLE", table }),
     [],
@@ -797,7 +903,6 @@ export default function DatabaseQueryBuilderPage() {
     (where: RuleGroupType) => dispatch({ type: "UPDATE_SET_WHERE", where }),
     [],
   );
-
   const setDeleteTable = useCallback(
     (table: string) => dispatch({ type: "DELETE_SET_TABLE", table }),
     [],
@@ -841,12 +946,17 @@ export default function DatabaseQueryBuilderPage() {
           <option key={suggestion} value={suggestion} />
         ))}
       </datalist>
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-12 sm:px-8 sm:py-16">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-6 pb-24 sm:gap-4 sm:px-8 sm:py-16 sm:pb-16 lg:pb-16">
         <header className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="flex items-center gap-2 font-mono text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-black/40 text-orange-400">
-                <Database size={18} strokeWidth={1.75} />
+            <h1 className="flex items-center gap-2 font-mono text-xl font-semibold tracking-tight text-white sm:text-3xl">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/15 bg-black/40 text-orange-400 sm:h-9 sm:w-9">
+                <Database size={16} strokeWidth={1.75} className="sm:hidden" />
+                <Database
+                  size={18}
+                  strokeWidth={1.75}
+                  className="hidden sm:block"
+                />
               </span>
               SQL Query Builder
             </h1>
@@ -864,7 +974,7 @@ export default function DatabaseQueryBuilderPage() {
               )}
             </AnimatePresence>
           </div>
-          <p className="max-w-2xl text-sm leading-relaxed text-white/65 sm:text-[15px]">
+          <p className="max-w-2xl text-[13px] leading-relaxed text-white/65 sm:text-[15px]">
             Visually build SELECT, INSERT, UPDATE, and DELETE statements and get
             production-ready SQL, formatted instantly for your chosen dialect.
             Press{" "}
@@ -874,8 +984,7 @@ export default function DatabaseQueryBuilderPage() {
             anywhere to copy the query.
           </p>
         </header>
-
-        <nav className="flex flex-wrap gap-2 rounded-lg border border-zinc-800 bg-white/2 p-1.5">
+        <nav className="grid grid-cols-2 gap-1.5 rounded-lg border border-zinc-800 bg-white/[0.02] p-1.5 sm:flex sm:flex-wrap sm:gap-2">
           {QUERY_MODES.map((modeOption) => {
             const isActive = state.mode === modeOption.id;
             return (
@@ -884,7 +993,7 @@ export default function DatabaseQueryBuilderPage() {
                 type="button"
                 onClick={() => handleModeChange(modeOption.id)}
                 title={modeOption.description}
-                className={`relative flex-1 rounded-md px-4 py-2.5 font-mono text-[13px] font-medium transition-colors duration-150 ${
+                className={`relative rounded-md px-3 py-2.5 text-center font-mono text-[12px] font-medium transition-colors duration-150 sm:flex-1 sm:px-4 sm:text-[13px] ${
                   isActive ? "text-black" : "text-white/55 hover:text-white/85"
                 }`}
               >
@@ -900,8 +1009,7 @@ export default function DatabaseQueryBuilderPage() {
             );
           })}
         </nav>
-
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-5">
           <div className="flex flex-col gap-4">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -942,7 +1050,6 @@ export default function DatabaseQueryBuilderPage() {
                         />
                       </div>
                     </SectionCard>
-
                     <SectionCard
                       icon={GitMerge}
                       title="Joins"
@@ -967,14 +1074,12 @@ export default function DatabaseQueryBuilderPage() {
                         </button>
                       </div>
                     </SectionCard>
-
                     <ConditionSection
                       label="Where filters"
                       icon={Filter}
                       query={state.select.where}
                       onChange={setWhere}
                     />
-
                     <SectionCard
                       icon={Rows3}
                       title="Group by"
@@ -986,14 +1091,12 @@ export default function DatabaseQueryBuilderPage() {
                         placeholder="Add a column to group by"
                       />
                     </SectionCard>
-
                     <ConditionSection
                       label="Having filters"
                       icon={ListFilter}
                       query={state.select.having}
                       onChange={setHaving}
                     />
-
                     <SectionCard
                       icon={ArrowUpDown}
                       title="Sort order"
@@ -1018,13 +1121,12 @@ export default function DatabaseQueryBuilderPage() {
                         </button>
                       </div>
                     </SectionCard>
-
                     <SectionCard
                       icon={SlidersHorizontal}
                       title="Pagination"
                       hint="LIMIT / OFFSET"
                     >
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                         <label className="flex flex-col gap-1.5">
                           <span className="font-mono text-[10px] uppercase tracking-wider text-white/35">
                             Limit
@@ -1059,7 +1161,6 @@ export default function DatabaseQueryBuilderPage() {
                     </SectionCard>
                   </>
                 )}
-
                 {state.mode === "INSERT" && (
                   <>
                     <SectionCard
@@ -1121,7 +1222,6 @@ export default function DatabaseQueryBuilderPage() {
                     </SectionCard>
                   </>
                 )}
-
                 {state.mode === "UPDATE" && (
                   <>
                     <SectionCard
@@ -1168,7 +1268,6 @@ export default function DatabaseQueryBuilderPage() {
                     />
                   </>
                 )}
-
                 {state.mode === "DELETE" && (
                   <>
                     <SectionCard
@@ -1199,9 +1298,8 @@ export default function DatabaseQueryBuilderPage() {
               </motion.div>
             </AnimatePresence>
           </div>
-
-          <div className="sticky bottom-4 z-20 flex flex-col gap-3 lg:top-6 lg:bottom-auto lg:self-start">
-            <section className="flex flex-col gap-3 rounded-lg border border-orange-400/20 bg-zinc-950/95 p-4 shadow-2xl shadow-black/40 backdrop-blur">
+          <div className="relative z-20 flex flex-col gap-3 lg:sticky lg:top-6 lg:self-start">
+            <section className="flex flex-col gap-2.5 rounded-lg border border-orange-400/20 bg-zinc-950/95 p-3.5 shadow-2xl shadow-black/40 backdrop-blur sm:gap-3 sm:p-4">
               <div className="flex items-center gap-2">
                 <Code2
                   size={14}
@@ -1218,7 +1316,7 @@ export default function DatabaseQueryBuilderPage() {
                     key={option.id}
                     type="button"
                     onClick={() => setDialect(option.id)}
-                    className={`rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors duration-150 ${
+                    className={`rounded-md border px-2.5 py-1.5 font-mono text-[11px] transition-colors duration-150 ${
                       dialect === option.id
                         ? "border-orange-400/50 bg-orange-400/15 text-orange-300"
                         : "border-zinc-800 text-white/50 hover:border-orange-400/30 hover:text-orange-300"
@@ -1228,9 +1326,44 @@ export default function DatabaseQueryBuilderPage() {
                   </button>
                 ))}
               </div>
-              <div className="max-h-[45vh] overflow-auto rounded-md border border-zinc-800 bg-black/60 p-3.5">
+              {hasSQL && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span
+                    className={`flex items-center gap-1 rounded-md border px-2 py-1 font-mono text-[10px] ${
+                      isValid
+                        ? "border-emerald-400/30 text-emerald-300"
+                        : "border-red-400/30 text-red-300"
+                    }`}
+                  >
+                    {isValid ? (
+                      <CheckCircle2 size={11} strokeWidth={2} />
+                    ) : (
+                      <XCircle size={11} strokeWidth={2} />
+                    )}
+                    {isValid
+                      ? "Valid"
+                      : `${errorCount} error${errorCount !== 1 ? "s" : ""}`}
+                  </span>
+                  {warningCount > 0 && (
+                    <span className="flex items-center gap-1 rounded-md border border-amber-400/30 px-2 py-1 font-mono text-[10px] text-amber-300">
+                      <AlertTriangle size={11} strokeWidth={2} />
+                      {warningCount} warning{warningCount !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                  {infoCount > 0 && (
+                    <span className="flex items-center gap-1 rounded-md border border-sky-400/30 px-2 py-1 font-mono text-[10px] text-sky-300">
+                      <Info size={11} strokeWidth={2} />
+                      {infoCount} note{infoCount !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+              )}
+              {hasSQL && issues.length > 0 && (
+                <ValidationSummary issues={issues} />
+              )}
+              <div className="max-h-[32vh] overflow-auto rounded-md border border-zinc-800 bg-black/60 p-3 sm:max-h-[45vh] sm:p-3.5">
                 {hasSQL ? (
-                  <pre className="whitespace-pre-wrap wrap-break-word font-mono text-[12.5px] leading-relaxed">
+                  <pre className="whitespace-pre-wrap break-words font-mono text-[12.5px] leading-relaxed">
                     <HighlightedSQL sql={sql} />
                   </pre>
                 ) : (
@@ -1240,7 +1373,7 @@ export default function DatabaseQueryBuilderPage() {
                   </p>
                 )}
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                 <div className="flex flex-wrap gap-2">
                   <CopyButton
                     copied={copiedFormatted}
@@ -1259,7 +1392,7 @@ export default function DatabaseQueryBuilderPage() {
                   type="button"
                   onClick={handleReset}
                   whileTap={{ scale: 0.94 }}
-                  className="flex items-center gap-1.5 rounded-md border border-zinc-800 px-2.5 py-1.5 font-mono text-[11px] text-white/45 transition-colors duration-150 hover:border-red-400/40 hover:text-red-400"
+                  className="flex items-center justify-center gap-1.5 rounded-md border border-zinc-800 px-2.5 py-1.5 font-mono text-[11px] text-white/45 transition-colors duration-150 hover:border-red-400/40 hover:text-red-400"
                 >
                   <RotateCcw size={12} strokeWidth={1.75} />
                   Reset

@@ -13,7 +13,7 @@ import {
   FileText,
   Send,
   FileCode,
-  Sprout,
+  DatabasePlus,
   Network,
   ShieldCheck,
   type LucideIcon,
@@ -112,7 +112,7 @@ export const TOOLS: Tool[] = [
     category: "Database Utilities",
     description:
       "Build SELECT/INSERT/UPDATE/DELETE queries visually without manually writing SQL.",
-    icon: Sprout,
+    icon: DatabasePlus,
     status: "Unfinished",
   },
   {
@@ -134,6 +134,17 @@ export const TOOLS: Tool[] = [
     icon: Network,
     status: "Unfinished",
   },
+  {
+    slug: "csv-sql-converter",
+    name: "CSV SQL Converter",
+    category: "Conversion Tools",
+    description:
+      "Turn CSV data into INSERT statements and SQL results into CSV.",
+    icon: Link2,
+    image: "/toolkit_image/url_encode_decode.png",
+    status: "Finished",
+  },
+
   {
     slug: "url-encode-decode",
     name: "URL Encoder/Decoder",
