@@ -71,16 +71,6 @@ export const TOOLS: Tool[] = [
     status: "Finished",
   },
   {
-    slug: "sql-formatter",
-    name: "SQL Formatter",
-    category: "Database Utilities",
-    description:
-      "Cleans up complex, single-line SQL queries for better readability during debugging.",
-    icon: Database,
-    image: "/toolkit_image/sql_formatter.jpg",
-    status: "Finished",
-  },
-  {
     slug: "js-css-minifier",
     name: "CSS/JS Minifier",
     category: "Formatting & Beautification",
@@ -96,25 +86,35 @@ export const TOOLS: Tool[] = [
     description:
       "Builds and sends GET, POST, PUT, PATCH, and DELETE requests with headers, query parameters, and request bodies without opening a full API client.",
     icon: Send,
-    status: "Unfinished",
+    status: "Finished",
   },
   {
-    slug: "curl-to-code-converter",
-    name: "cURL to Code Converter",
+    slug: "http-status-code-reference",
+    name: "HTTP Status Code Reference",
     category: "Network & API",
     description:
-      "Builds and sends GET, POST, PUT, PATCH, and DELETE requests with headers, query parameters, and request bodies without opening a full API client.",
-    icon: Terminal,
+      "Quickly explains status codes like 301, 401, 403, 404, 429, and 500.",
+    icon: Network,
+    status: "Finished",
+  },
+  {
+    slug: "database-query-builder",
+    name: "Database Query Builder",
+    category: "Database Utilities",
+    description:
+      "Build SELECT/INSERT/UPDATE/DELETE queries visually without manually writing SQL.",
+    icon: Sprout,
     status: "Unfinished",
   },
   {
-    slug: "database-seed-data-generator",
-    name: "Database Seed Data Generator",
+    slug: "sql-formatter",
+    name: "SQL Formatter",
     category: "Database Utilities",
     description:
-      "Generates realistic sample records for testing database-driven applications.",
-    icon: Sprout,
-    status: "Unfinished",
+      "Cleans up complex, single-line SQL queries for better readability during debugging.",
+    icon: Database,
+    image: "/toolkit_image/sql_formatter.jpg",
+    status: "Finished",
   },
   {
     slug: "erd-generator",
