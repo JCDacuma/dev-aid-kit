@@ -123,7 +123,7 @@ const RQBStyles = memo(function RQBStyles() {
 const RuleFieldInput = memo(function RuleFieldInput(props: FieldSelectorProps) {
   return (
     <input
-      className="rqb-field-input min-w-[130px] flex-1"
+      className="rqb-field-input min-w-32.5 flex-1"
       list={SUGGESTIONS_LIST_ID}
       value={props.value ?? ""}
       onChange={(event) => props.handleOnChange(event.target.value)}
@@ -144,7 +144,7 @@ const RuleValueInput = memo(function RuleValueInput(props: ValueEditorProps) {
   }, [props.operator]);
   return (
     <input
-      className="rqb-value-input min-w-[130px] flex-1"
+      className="rqb-value-input min-w-32.5 flex-1"
       value={
         typeof props.value === "string"
           ? props.value
@@ -184,7 +184,7 @@ const SectionCard = memo(function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-white/[0.02] p-5">
+    <section className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-white/2 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Icon size={14} strokeWidth={1.75} className="text-white/40" />
@@ -280,7 +280,7 @@ const TagInput = memo(function TagInput({
         onBlur={commitDraft}
         list={SUGGESTIONS_LIST_ID}
         placeholder={values.length ? "" : placeholder}
-        className="min-w-[120px] flex-1 bg-transparent px-1 py-0.5 font-mono text-[12px] text-white/85 outline-none placeholder:text-white/25"
+        className="min-w-30 flex-1 bg-transparent px-1 py-0.5 font-mono text-[12px] text-white/85 outline-none placeholder:text-white/25"
       />
     </div>
   );
@@ -875,7 +875,7 @@ export default function DatabaseQueryBuilderPage() {
           </p>
         </header>
 
-        <nav className="flex flex-wrap gap-2 rounded-lg border border-zinc-800 bg-white/[0.02] p-1.5">
+        <nav className="flex flex-wrap gap-2 rounded-lg border border-zinc-800 bg-white/2 p-1.5">
           {QUERY_MODES.map((modeOption) => {
             const isActive = state.mode === modeOption.id;
             return (
@@ -1230,7 +1230,7 @@ export default function DatabaseQueryBuilderPage() {
               </div>
               <div className="max-h-[45vh] overflow-auto rounded-md border border-zinc-800 bg-black/60 p-3.5">
                 {hasSQL ? (
-                  <pre className="whitespace-pre-wrap break-words font-mono text-[12.5px] leading-relaxed">
+                  <pre className="whitespace-pre-wrap wrap-break-word font-mono text-[12.5px] leading-relaxed">
                     <HighlightedSQL sql={sql} />
                   </pre>
                 ) : (
