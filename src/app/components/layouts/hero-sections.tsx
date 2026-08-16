@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import HeroBackground from "@/app/components/ui/hero-backgrounds";
+
+import FloatingLines from "@/app/helpers/FloatingLines";
 import { TOOLS } from "@/app/lib/tools";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -24,8 +25,7 @@ function TerminalCycle() {
     if (TOOLS.length === 0) return;
 
     const root = rootRef.current;
-    // Only tick the interval while the terminal text is actually visible —
-    // avoids background re-renders once the hero has scrolled out of view.
+
     let id: ReturnType<typeof setInterval> | null = null;
 
     const start = () => {
@@ -96,7 +96,21 @@ export default function HeroSection() {
       aria-label="DevAidKit Developer Tools & Utilities"
       className="relative isolate flex min-h-160 h-screen w-full flex-col items-center justify-center overflow-hidden border-b border-white/5 px-5 py-24 sm:min-h-[82vh] sm:py-28"
     >
-      <HeroBackground />
+      <div className="absolute inset-0">
+        <FloatingLines
+          enabledWaves={["top", "middle", "bottom"]}
+          lineCount={8}
+          lineDistance={8}
+          bendRadius={8}
+          bendStrength={-2}
+          interactive
+          parallax
+          animationSpeed={1}
+          gradientStart="#27765b"
+          gradientMid="#002026"
+          gradientEnd="#6a6a6a"
+        />
+      </div>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(10,11,13,0.15)_0%,rgba(10,11,13,0.75)_65%,rgba(10,11,13,0.96)_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-b from-transparent to-[#0a0b0d]" />
 

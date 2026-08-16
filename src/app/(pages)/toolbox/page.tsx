@@ -1,5 +1,4 @@
 "use client";
-
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import SearchBar from "@/app/components/ui/searchbar";
@@ -23,7 +22,6 @@ const controlsVariants: Variants = {
     transition: { duration: 0.4, ease: EASE, delay: 0.08 },
   },
 };
-
 const sectionVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
@@ -32,7 +30,6 @@ const sectionVariants: Variants = {
   },
   exit: { opacity: 0, transition: { duration: 0.15, ease: EASE } },
 };
-
 // Scroll-aware and reversible (hides smoothly when scrolled out of view).
 // layout="position" (not full `layout`) is what keeps this cheap: it only
 // interpolates x/y transforms instead of measuring + animating size/borders
@@ -50,27 +47,30 @@ const cardVariants: Variants = {
   }),
   exit: { opacity: 0, scale: 0.98, transition: { duration: 0.15, ease: EASE } },
 };
-
 const emptyStateVariants: Variants = {
   hidden: { opacity: 0, y: 8 },
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE } },
   exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: EASE } },
 };
 
-// IntersectionObserver-driven (whileInView), so this is off the main thread
-// scroll path — cheap regardless of list size.
 const VIEWPORT = {
   once: false,
   amount: 0.25,
   margin: "0px 0px -80px 0px",
 } as const;
 
+const SEARCH_INDEX = TOOLS.map((tool) => ({
+  tool,
+  nameLower: tool.name.toLowerCase(),
+  descLower: tool.description.toLowerCase(),
+}));
+
+type ToolGroup = { category: ToolCategory; tools: typeof TOOLS };
+
 export default function MainPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ToolCategory | "All">("All");
 
-  // Defers re-filtering while the user is still typing fast, keeping input
-  // latency low even with a large TOOLS array.
   const deferredQuery = useDeferredValue(query);
 
   const handleQueryChange = useCallback((v: string) => setQuery(v), []);
@@ -79,27 +79,29 @@ export default function MainPage() {
     [],
   );
 
-  const filtered = useMemo(() => {
-    const q = deferredQuery.trim().toLowerCase();
-    return TOOLS.filter((tool) => {
-      const matchesCategory = category === "All" || tool.category === category;
-      if (!matchesCategory) return false;
-      if (q.length === 0) return true;
-      return (
-        tool.name.toLowerCase().includes(q) ||
-        tool.description.toLowerCase().includes(q)
-      );
-    });
-  }, [deferredQuery, category]);
-
   const grouped = useMemo(() => {
-    const groups: { category: ToolCategory; tools: typeof TOOLS }[] = [];
+    const q = deferredQuery.trim().toLowerCase();
+    const buckets = new Map<ToolCategory, typeof TOOLS>();
+
+    for (const { tool, nameLower, descLower } of SEARCH_INDEX) {
+      if (category !== "All" && tool.category !== category) continue;
+      if (q.length > 0 && !nameLower.includes(q) && !descLower.includes(q)) {
+        continue;
+      }
+      const bucket = buckets.get(tool.category);
+      if (bucket) bucket.push(tool);
+      else buckets.set(tool.category, [tool]);
+    }
+
+    const groups: ToolGroup[] = [];
     for (const cat of CATEGORY_ORDER) {
-      const tools = filtered.filter((tool) => tool.category === cat);
-      if (tools.length > 0) groups.push({ category: cat, tools });
+      const tools = buckets.get(cat);
+      if (tools && tools.length > 0) groups.push({ category: cat, tools });
     }
     return groups;
-  }, [filtered]);
+  }, [deferredQuery, category]);
+
+  const hasResults = grouped.length > 0;
 
   return (
     <main className="min-h-screen bg-[#0a0b0d]">
@@ -117,9 +119,8 @@ export default function MainPage() {
           <SearchBar value={query} onChange={handleQueryChange} />
           <CategoryFilter active={category} onChange={handleCategoryChange} />
         </motion.div>
-
         <AnimatePresence mode="popLayout" initial={false}>
-          {grouped.length === 0 ? (
+          {!hasResults ? (
             <motion.div
               key="empty"
               initial="hidden"
