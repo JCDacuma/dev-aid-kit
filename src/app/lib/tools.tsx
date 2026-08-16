@@ -10,13 +10,14 @@ import {
   Clock,
   Fingerprint,
   Palette,
-  FileText,
+  LayoutDashboard,
   Send,
   FileCode,
   DatabasePlus,
   Network,
   ShieldCheck,
   Hash,
+  ScissorsLineDashed,
   type LucideIcon,
 } from "lucide-react";
 
@@ -58,7 +59,7 @@ export const CATEGORY_COLORS: Record<ToolCategory, string> = {
   "Conversion Tools": "#60A5FA",
   "Security & Identity": "#F472B6",
   "Text & Utilities": "#FBBF24",
-  "Design Utilities": "#A78BFA",
+  "Design Utilities": "#B00EC4",
 };
 
 export const TOOLS: Tool[] = [
@@ -118,15 +119,7 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/sql_formatter.jpg",
     status: "Finished",
   },
-  {
-    slug: "erd-generator",
-    name: "ERD Generator",
-    category: "Database Utilities",
-    description:
-      "Creates a visual entity relationship diagram from database table definitions or schema input.",
-    icon: Network,
-    status: "Unfinished",
-  },
+
   {
     slug: "database-query-builder",
     name: "Database Query Builder",
@@ -242,6 +235,26 @@ export const TOOLS: Tool[] = [
     category: "Design Utilities",
     description: "Converts between HEX, RGB, HSL for quick CSS adjustments.",
     icon: Palette,
+    image: "/toolkit_image/color_format.png",
+    status: "Finished",
+  },
+  {
+    slug: "clip-path-generator",
+    name: "CSS/Tailwind Clip-Path Generator",
+    category: "Design Utilities",
+    description:
+      "Create custom CSS clip-path shapes with an interactive visual editor and generate ready-to-use CSS and Tailwind classes.",
+    icon: ScissorsLineDashed,
+    image: "/toolkit_image/color_format.png",
+    status: "Finished",
+  },
+  {
+    slug: "flexbox-generator",
+    name: "CSS/Tailwind Flexbox Generator",
+    category: "Design Utilities",
+    description:
+      "Build Flexbox layouts visually with live preview and generate ready-to-use CSS and Tailwind classes for responsive layouts.",
+    icon: LayoutDashboard,
     image: "/toolkit_image/color_format.png",
     status: "Finished",
   },
