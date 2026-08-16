@@ -15,6 +15,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "DevAidKit",
   description: "A local-first collection of everyday developer tools.",
+  icons: {
+    icon: "/logo/tabicondev-v1.svg",
+  },
 };
 
 export default function RootLayout({

@@ -12,6 +12,7 @@ import {
   Palette,
   LayoutDashboard,
   Send,
+  Sprout,
   FileCode,
   DatabasePlus,
   Network,
@@ -139,7 +140,16 @@ export const TOOLS: Tool[] = [
     image: "/toolkit_image/url_encode_decode.png",
     status: "Finished",
   },
-
+  {
+    slug: "seed-generator",
+    name: "Seed Generator",
+    category: "Database Utilities",
+    description:
+      "Generate fake data to populate your database for testing purposes.",
+    icon: Sprout,
+    image: "/toolkit_image/seed_generator.png",
+    status: "Finished",
+  },
   {
     slug: "url-encode-decode",
     name: "URL Encoder/Decoder",
